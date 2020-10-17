@@ -13,7 +13,7 @@ od = id + wallThickness*2; // Outer diameter is calculated from id and thickness
 
 union() {
     // Build a base
-    linear_extrude(height = baseHeight) {
+    linear_extrude(height = baseHeight + 0.01) {
         // A simple track baseHeight(mm) in height and baseFooting(mm) wider than the base of the mould walls
         difference() {
             footingOR = (od + mouldWallThicknessBottom*2 + baseFooting)/2;
@@ -23,28 +23,27 @@ union() {
         }
     }
 
-    // Build outer wall
+    // Build mould walls
     translate([0, 0, baseHeight + mouldWallHeight/2]) {
-        difference() {
+        union() {
             // Bulid the outer mould wall
-            outerWallBottomRadius = od/2 + mouldWallThicknessBottom;
-            outerWallTopRadius = od/2 + mouldWallThicknessTop;
-            outerWallInnerRadius = od/2;
-            cylinder(h = mouldWallHeight, r1 = outerWallBottomRadius, r2 = outerWallTopRadius, center = true);
-            cylinder(h = mouldWallHeight + 0.01, r1 = outerWallInnerRadius, r2 = outerWallInnerRadius, center = true, $fn = cylinderFaceApprox);
-        }
-    }
- 
-    // Build inner wall
-    translate([0, 0, baseHeight + mouldWallHeight/2]) {
-        difference() {
-            // Bulid the inner mould wall
-            innerWallBottomRadius = id/2 - mouldWallThicknessBottom;
-            innerWallTopRadius = id/2 - mouldWallThicknessTop;
-            innerWallOuterRadius = id/2;
+            difference() {
+                outerWallBottomRadius = od/2 + mouldWallThicknessBottom;
+                outerWallTopRadius = od/2 + mouldWallThicknessTop;
+                outerWallInnerRadius = od/2;
+                cylinder(h = mouldWallHeight, r1 = outerWallBottomRadius, r2 = outerWallTopRadius, center = true);
+                cylinder(h = mouldWallHeight + 0.01, r1 = outerWallInnerRadius, r2 = outerWallInnerRadius, center = true, $fn = cylinderFaceApprox);
+            }
             
-            cylinder(h = mouldWallHeight, r1 = innerWallOuterRadius, r2 = innerWallOuterRadius, center = true, , $fn = cylinderFaceApprox);
-            cylinder(h = mouldWallHeight + 0.01, r1 = innerWallBottomRadius, r2 = innerWallTopRadius, center = true);
+            // Bulid the inner mould wall
+            difference() {
+                innerWallBottomRadius = id/2 - mouldWallThicknessBottom;
+                innerWallTopRadius = id/2 - mouldWallThicknessTop;
+                innerWallOuterRadius = id/2;
+                
+                cylinder(h = mouldWallHeight, r1 = innerWallOuterRadius, r2 = innerWallOuterRadius, center = true, , $fn = cylinderFaceApprox);
+                cylinder(h = mouldWallHeight + 0.01, r1 = innerWallBottomRadius, r2 = innerWallTopRadius, center = true);
+            }
         }
     }
-}
+ }

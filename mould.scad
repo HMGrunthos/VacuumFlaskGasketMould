@@ -41,7 +41,7 @@ union() {
                 innerWallTopRadius = id/2 - mouldWallThicknessTop;
                 innerWallOuterRadius = id/2;
                 
-                cylinder(h = mouldWallHeight, r1 = innerWallOuterRadius, r2 = innerWallOuterRadius, center = true, , $fn = cylinderFaceApprox);
+                cylinder(h = mouldWallHeight, r1 = innerWallOuterRadius, r2 = innerWallOuterRadius, center = true, $fn = cylinderFaceApprox);
                 cylinder(h = mouldWallHeight + 0.01, r1 = innerWallBottomRadius, r2 = innerWallTopRadius, center = true);
             }
         }

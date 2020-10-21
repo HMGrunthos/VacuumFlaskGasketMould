@@ -1,4 +1,4 @@
-id = 128.7-2.5; // Controls the inner diameter of the gasket (2.5mm is the ammount of diameter reduction intended to give a slight stretch fit)
+id = ((128.7-2.5)*PI-10)/PI; // Controls the inner diameter of the gasket (2.5mm is the ammount of diameter reduction intended to give a slight stretch fit)
 wallThickness = 6; // Controls the thickness of the gasket in the radial direction
 mouldWallHeight = 10; // Controls the depth of the gasket orthogonal to the radial plane
 

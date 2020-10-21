@@ -3,10 +3,10 @@ wallThickness = 6; // Controls the thickness of the gasket in the radial directi
 mouldWallHeight = 10; // Controls the depth of the gasket orthogonal to the radial plane
 
 // Mould build parameters
-mouldWallThicknessTop = 3;
-mouldWallThicknessBottom = 6;
-baseFooting = 8;
-baseHeight = 3;
+mouldWallThicknessTop = 2;
+mouldWallThicknessBottom = 3;
+baseFooting = 3;
+baseHeight = 2;
 cylinderFaceApprox = 400;
 
 od = id + wallThickness*2; // Outer diameter is calculated from id and thickness

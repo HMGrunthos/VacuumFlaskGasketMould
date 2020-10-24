@@ -53,10 +53,10 @@ centralContraction = 4;
 centralScale = 0.9;
 
 // Inner plug
-color([0, 0, 1, 0.6]) {
+/*color([0, 0, 1, 0.6]) {
     centralPlug(stopperHeight, centralContraction, mouldWallThickness, stopperTopD/2)
         stopperMould(stopperTopD/2, stopperBaseD/2, stopperHeight, mouldWallThickness);
-}
+}*/
 /*
 // Inner plug mould
 color([0, 1, 0, 0.6]) {
@@ -87,8 +87,8 @@ color([0, 1, 1, 0.6]) {
     cast(stopperHeight, mouldWallThickness)
         stopperMould(stopperTopD/2, stopperBaseD/2, stopperHeight, mouldWallThickness);
 }
-/*
+
 // Mould
 color([1, 0, 0, 0.6]) {
     stopperMould(stopperTopD/2, stopperBaseD/2, stopperHeight, mouldWallThickness);
-}*/
+}

@@ -33,7 +33,7 @@ module centralPlug(baseR, tanFaceAngle, stopperHeight, innerHeight, contraction)
 module centralPlugMould(baseR, tanFaceAngle, stopperHeight, innerHeight, contraction, mouldWallThickness, legRadius) {
     intersection() {
         cast(stopperHeight, mouldWallThickness) // And constained within the outer mould
-            stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+            stopperMould(stopperBaseD/2-contraction+mouldWallThickness, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
         translate([0, 0, mouldWallThickness]) {
             difference() {
                 union() {
@@ -42,10 +42,12 @@ module centralPlugMould(baseR, tanFaceAngle, stopperHeight, innerHeight, contrac
                             scale([2, 2, 1])
                                 projection()
                                         centralPlug(baseR, tanFaceAngle, stopperHeight, innerHeight, contraction);
+                    /*
                     for(a = [0:90:360]) { // Joined to a set of legs
                         translate([(baseR - contraction)*sin(a), (baseR - contraction)*cos(a), 0])
                             cylinder(h = (stopperHeight - innerHeight)/2, r1 = legRadius, r2 = legRadius);
                     }
+                    */
                 }
                 union() { // Inner region and lip
                     translate([0, 0, stopperHeight/2 + innerHeight/2 - embeddingDepth])
@@ -82,7 +84,7 @@ innerVolumeHeight = stopperHeight - innerVolumeContraction*2;
 innnerLegRadius = 4;
 tanStopperFaceAngle = (stopperTopD - stopperBaseD)/(2*stopperHeight);
 
-mouldWallThickness = 2;
+mouldWallThickness = 1;
 
 // Explicit central region of insulation
 /*

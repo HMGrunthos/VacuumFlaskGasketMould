@@ -42,11 +42,11 @@ module stopperMouldWalls(baseR, tanFaceAngle, height, wallThickness) {
     }
 }
 
-module stopperMouldLid(height, wallThickness, interferenceTol) {
+module stopperMouldLid(height, wallThickness, innerPlugOffset, diasR, interferenceTol) {
     difference() {
         union() {
-            translate([0, 0, height - 3 + embeddingDepth])
-                cylinder(h = 3 + embeddingDepth, r1 = 45, r2 = 45);
+            translate([0, 0, height - innerPlugOffset + embeddingDepth])
+                cylinder(h = innerPlugOffset + embeddingDepth, r1 = diasR, r2 = diasR);
             translate([0, 0, 1*height + 0*mouldWallThickness - embeddingDepth])
                 linear_extrude(height = 2*wallThickness + embeddingDepth, center = false)
                     hull()
@@ -153,8 +153,11 @@ innerVolumeHeight = stopperHeight - innerVolumeContraction*2;
 innnerLegRadius = 4;
 tanStopperFaceAngle = (stopperTopD - stopperBaseD)/(2*stopperHeight);
 
+innerPlugOffset = 3;
+interferenceTol = 0.4; // Allow 0.3mm for fitting the outer mould into the lid
+innerDias = 80;
 mouldWallThickness = 1;
-
+/*
 // Assembled filler
 FillerBase = 101.5;
 FillerTop = 105.5;
@@ -162,7 +165,7 @@ FillerHeight = 42;
 color([1, 0, 1, 0.3])
     translate([0, 0, 3 + 0*mouldWallThickness])
         stopper(FillerBase/2, (FillerTop - FillerBase)/(2*FillerHeight), FillerHeight);
-
+*/
 // Explicit stopper
 /*
 color([1, 1, 0, 0.3])
@@ -176,10 +179,12 @@ color([1, 0, 0, 0.3])
         stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 */
 
-color([1, 0, 0, 0.3])
-    stopperMouldLid(stopperHeight, mouldWallThickness, 0.3)
+color([1, 0, 0]) //, 0.3])
+    stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2, interferenceTol)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 
+/*
 // Outer mould
-color([0, 1, 0, 0.3])
+color([0, 1, 0]) //, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+    */

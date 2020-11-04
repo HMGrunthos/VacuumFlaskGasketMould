@@ -77,13 +77,13 @@ module stopperMouldLid(height, wallThickness, interferenceTol) {
                 cylinder(r = interferenceTol/2, h = embeddingDepth, $fn = 20);
             }
     }
-
+/*
             intersection() {
                 translate([0, 0, height])
                     cylinder(r1 = 100, r2 = 100, h = 1, center = true);
                 children();
             }
-
+*/
 }
 
 module centralPlug(baseR, tanFaceAngle, stopperHeight, innerHeight, contraction) {
@@ -154,7 +154,7 @@ innnerLegRadius = 4;
 tanStopperFaceAngle = (stopperTopD - stopperBaseD)/(2*stopperHeight);
 
 mouldWallThickness = 1;
-/*
+
 // Assembled filler
 FillerBase = 101.5;
 FillerTop = 105.5;
@@ -162,7 +162,7 @@ FillerHeight = 42;
 color([1, 0, 1, 0.3])
     translate([0, 0, 3 + 0*mouldWallThickness])
         stopper(FillerBase/2, (FillerTop - FillerBase)/(2*FillerHeight), FillerHeight);
-*/
+
 // Explicit stopper
 /*
 color([1, 1, 0, 0.3])
@@ -179,8 +179,7 @@ color([1, 0, 0, 0.3])
 color([1, 0, 0, 0.3])
     stopperMouldLid(stopperHeight, mouldWallThickness, 0.3)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-/*
+
 // Outer mould
 color([0, 1, 0, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-*/

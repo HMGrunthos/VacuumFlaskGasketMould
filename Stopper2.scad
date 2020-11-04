@@ -179,12 +179,13 @@ color([1, 0, 0, 0.3])
         stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 */
 
+// All in one mould
+// stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+
 color([1, 0, 0]) //, 0.3])
     stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2, interferenceTol)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 
-/*
 // Outer mould
 color([0, 1, 0]) //, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-    */

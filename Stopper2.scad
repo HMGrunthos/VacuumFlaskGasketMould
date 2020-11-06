@@ -7,7 +7,7 @@ ribAspect = 0.6;
 
 interferenceTol = 0.4; // Allow 0.3mm for fitting the outer mould into the lid
 
-enableRibs = true;
+enableRibs = false;
 
 module stopper(baseR, tanFaceAngle, height) {
     topR = baseR + tanFaceAngle * height;
@@ -163,7 +163,7 @@ tanStopperFaceAngle = (stopperTopD - stopperBaseD)/(2*stopperHeight);
 innerDias = 80;
 mouldWallThickness = 1;
 
-showStopperAndFiller = true;
+showStopperAndFiller = false;
 if(showStopperAndFiller) {
     // Assembled filler
     FillerBase = 101.5;
@@ -180,16 +180,33 @@ if(showStopperAndFiller) {
             ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
 }
 
-/*
 // Stopper cast from mould
 color([1, 0, 0, 0.3])
     cast(stopperHeight, mouldWallThickness)
         stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-*/
+
+/* Generate sample section
+difference() {
+    intersection() {
+        // Stopper cast from mould
+        color([1, 0, 0, 0.3])
+            cast(stopperHeight, mouldWallThickness)
+                stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+
+        translate([-0.5, -stopperTopD/2, 0])
+            cube([1, stopperTopD, stopperHeight + 2*mouldWallThickness]);
+    }
+    for(a = [0:90:360]) { // Joined to a set of legs
+        translate([0, 4*stopperHeight/6*sin(a), 1.4*stopperHeight/6*cos(a)])
+            translate([-1.5, -stopperHeight/4, mouldWallThickness + 2*stopperHeight/6])
+                cube(size = [3, stopperHeight/2, stopperHeight/3]);
+    }
+}*/
 
 // All in one mould
 // stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 
+/*
 color([1, 0, 0, 0.3])
     stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
@@ -197,3 +214,4 @@ color([1, 0, 0, 0.3])
 // Outer mould
 color([0, 1, 0, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+*/

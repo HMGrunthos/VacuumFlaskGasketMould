@@ -2,12 +2,25 @@ cylinderFaceApprox = 400;
 embeddingDepth = 0.01;
 
 ribDepth = 0.75;
-ribSpacing = 4;
-ribAspect = 0.6;
+ribSpacing = 3.5;
+ribAspect = 0.725;
+
+teardropAngle = 60;
 
 interferenceTol = 0.4; // Allow 0.3mm for fitting the outer mould into the lid
 
-enableRibs = false;
+enableRibs = true;
+
+module teardrop(radius, angle) {
+    union() {
+        hull() {
+            circle(r = radius, $fn = 30);
+            polygon(points = [[-radius/sin(angle/2), 0],
+                              [-radius*sin(angle/2), radius*cos(angle/2)],
+                              [-radius*sin(angle/2), -radius*cos(angle/2)]]);
+        }
+    }
+}
 
 module stopper(baseR, tanFaceAngle, height) {
     topR = baseR + tanFaceAngle * height;
@@ -15,28 +28,41 @@ module stopper(baseR, tanFaceAngle, height) {
 }
 
 module ribbedStopper(baseR, tanFaceAngle, height) {
+    faceAngle = atan(tanFaceAngle);
     nStacks = floor(height/ribSpacing);
-    union() {
-        roundness = ribSpacing * ribAspect / 2;
-        for(baseHeight = [0:ribSpacing:((nStacks-1)*ribSpacing)]) { // Ribs
-            //baseHeight = 0;
-            baseOffset = baseHeight + ribSpacing * (1 - ribAspect);
-            baseRib = baseR + tanFaceAngle * baseOffset;
-            translate([0, 0, baseOffset + roundness])
+    intersection() {
+        stopper(baseR, tanFaceAngle, height); // Intersected with an intended size stopper
+        union() {
+            stopper(baseR - ribDepth, tanFaceAngle, height); // Unioned with a slightly shrunken stopper
+            tdRadius = (ribSpacing*ribAspect)/(1+cos(faceAngle)/sin(teardropAngle/2));
+            for(baseHeight = [0:ribSpacing:((nStacks-1)*ribSpacing)]) { // For each ribs
+                //baseHeight = 0;
+                baseOffset = baseHeight + ribSpacing * (1 - ribAspect);
+                baseRib = baseR - ribDepth + tanFaceAngle * baseOffset;
+
                 rotate_extrude(angle = 360, $fn = cylinderFaceApprox) {
-                    translate([baseRib - roundness, 0, 0])
-                        circle(r = roundness, $fn = 16);
-                    translate([0, -roundness, 0])
-                        square(size = [baseRib - roundness + embeddingDepth, 2*roundness]);
+                    translate([0, baseOffset, 0]) {
+                        hull() {
+                            union() {
+                                translate([baseRib, tdRadius, 0])
+                                    rotate([0, 0, -90 - faceAngle])
+                                        teardrop(tdRadius, teardropAngle);
+                                translate([baseRib, tdRadius, 0])
+                                    rotate([0, 0, 90 - faceAngle])
+                                        teardrop(tdRadius, teardropAngle);
+                                square(size = [baseRib + 1*(ribSpacing*ribAspect - tdRadius)*tanFaceAngle, ribSpacing*ribAspect]);
+                            }
+                        }
+                    }
                 }
+            }
         }
-        stopper(baseR - ribDepth, tanFaceAngle, height); // Unioned with a slightly shrunken stopper
     }
 }
 
 module stopperMould(baseR, tanFaceAngle, height, wallThickness) {
    union() {
-        linear_extrude(height = wallThickness + embeddingDepth, center = false) { // Stopper and lip cut from mould block
+        linear_extrude(height = wallThickness + embeddingDepth, center = false) { // A closed base for the mould
             topR = baseR + tanFaceAngle * height;
             circle(r = topR + wallThickness);
         }
@@ -47,7 +73,7 @@ module stopperMould(baseR, tanFaceAngle, height, wallThickness) {
 
 module stopperMouldWalls(baseR, tanFaceAngle, height, wallThickness) {
    difference() {
-        linear_extrude(height = height + 1*wallThickness, center = false) { // Stopper and lip cut from mould block
+        linear_extrude(height = height + 1*wallThickness, center = false) { // 'Blank' From which the mould is cut
             topR = baseR + tanFaceAngle * height;
             circle(r = topR + wallThickness);
         }
@@ -148,6 +174,77 @@ module cast(height, baseHeight) {
     }
 }
 
+module sliceCentre() {
+    projection() {
+        rotate([90, 0, 0]) {
+            intersection() {
+                children();
+                rotate([-90, 0, 0]) {
+                    linear_extrude(height = 1e-12, center = false) {
+                        minkowski() {
+                            hull()
+                                projection()
+                                    rotate([90, 0, 0])
+                                        children();
+                            square(size = [1, 1]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+module minkowskiDifference2D() {
+    // Subtract from the original object a bigger object with a Minkowski summed (->reduced) hole
+    difference() {
+        children(0);
+        // Minkowski sum of the negative initial object 
+        minkowski() {
+            // make a hollow object with a hole that corresponds to the initial object
+            difference() {
+                // increase the size of initial object using Minkowski sum
+                minkowski() {
+                    children(0);
+                    square(size = [20, 20], center = true);
+                }
+                // now remove initial object
+                children(0);
+            }
+            children(1);
+        }
+    }
+}
+
+module outlineSample(borderThickness) {
+    rotate([-90, 0, 0]) {
+        linear_extrude(height = 1, center = false) {
+            union() {
+                intersection() {
+                    sliceCentre()
+                        children(0);
+                    translate([0, -stopperHeight/2 - mouldWallThickness, 0]) {
+                        union() {
+                            square(size = [borderThickness, 1000], center = true);
+                            square(size = [1000, borderThickness], center = true);
+                        }
+                    }
+                }
+                difference() {
+                    sliceCentre()
+                        children(0);
+                    minkowskiDifference2D() {
+                        sliceCentre()
+                            children(0);
+                        circle(r = borderThickness, $fn = 12);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 innerPlugOffset = 2;
 
 stopperHeight = 42 + innerPlugOffset*2;
@@ -170,47 +267,47 @@ if(showStopperAndFiller) {
     FillerTop = 105.5;
     FillerHeight = 42;
     color([1, 0, 1, 0.3])
-        translate([0, 0, innerPlugOffset + 0*mouldWallThickness])
+        translate([0, 0, innerPlugOffset + 1*mouldWallThickness])
             stopper(FillerBase/2, (FillerTop - FillerBase)/(2*FillerHeight), FillerHeight);
 
     // Explicit stopper
     color([1, 1, 0, 0.3])
-        translate([0, 0, 0*mouldWallThickness])
+    //color([1, 1, 0]);
+        translate([0, 0, 1*mouldWallThickness])
             // stopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
             ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
 }
 
+/*
 // Stopper cast from mould
 color([1, 0, 0, 0.3])
     cast(stopperHeight, mouldWallThickness)
         stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+*/
 
-/* Generate sample section
-difference() {
-    intersection() {
-        // Stopper cast from mould
-        color([1, 0, 0, 0.3])
-            cast(stopperHeight, mouldWallThickness)
-                stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+// Generate sample sections
+color([1, 1, 0])
+    outlineSample(5)
+        //ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
+        cast(stopperHeight, mouldWallThickness)
+            union() {
+                stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+                stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
+                    stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+            }
 
-        translate([-0.5, -stopperTopD/2, 0])
-            cube([1, stopperTopD, stopperHeight + 2*mouldWallThickness]);
-    }
-    for(a = [0:90:360]) { // Joined to a set of legs
-        translate([0, 4*stopperHeight/6*sin(a), 1.4*stopperHeight/6*cos(a)])
-            translate([-1.5, -stopperHeight/4, mouldWallThickness + 2*stopperHeight/6])
-                cube(size = [3, stopperHeight/2, stopperHeight/3]);
-    }
-}*/
-
-// All in one mould
-// stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-
-/*
-color([1, 0, 0, 0.3])
-    stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
+color([1, 0, 1])
+    outlineSample(1)
+        //stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 
+// All in one mould (prefer wall and lid separately)
+// stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+
+color([1, 0, 0])
+    stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
+        stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+/*
 // Outer mould
 color([0, 1, 0, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);

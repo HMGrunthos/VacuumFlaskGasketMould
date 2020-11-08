@@ -2,7 +2,7 @@ cylinderFaceApprox = 400;
 embeddingDepth = 0.01;
 
 ribDepth = 0.75;
-ribSpacing = 3.5;
+ribSpacing = 4;
 ribAspect = 0.725;
 
 teardropAngle = 60;
@@ -29,13 +29,13 @@ module stopper(baseR, tanFaceAngle, height) {
 
 module ribbedStopper(baseR, tanFaceAngle, height) {
     faceAngle = atan(tanFaceAngle);
-    nStacks = floor(height/ribSpacing);
+    nStacks = floor((height - ribSpacing)/ribSpacing);
     intersection() {
         stopper(baseR, tanFaceAngle, height); // Intersected with an intended size stopper
         union() {
             stopper(baseR - ribDepth, tanFaceAngle, height); // Unioned with a slightly shrunken stopper
             tdRadius = (ribSpacing*ribAspect)/(1+cos(faceAngle)/sin(teardropAngle/2));
-            for(baseHeight = [0:ribSpacing:((nStacks-1)*ribSpacing)]) { // For each ribs
+            for(baseHeight = [ribSpacing*(ribAspect):ribSpacing:((nStacks)*ribSpacing)]) { // For each ribs
                 //baseHeight = 0;
                 baseOffset = baseHeight + ribSpacing * (1 - ribAspect);
                 baseRib = baseR - ribDepth + tanFaceAngle * baseOffset;
@@ -159,9 +159,9 @@ module centralPlugMould(baseR, tanFaceAngle, stopperHeight, innerHeight, contrac
     }
 }*/
 
-module cast(height, baseHeight) {
+module cast(height, baseHeight, castOffset) {
     difference() {
-        translate([0, 0, baseHeight - embeddingDepth]) {
+        translate([0, 0, castOffset - embeddingDepth]) {
             linear_extrude(height = height + 2*embeddingDepth, center = false) {
                 scale([0.99, 0.99, 1]) {
                     projection() {
@@ -260,24 +260,6 @@ tanStopperFaceAngle = (stopperTopD - stopperBaseD)/(2*stopperHeight);
 innerDias = 80;
 mouldWallThickness = 1;
 
-showStopperAndFiller = false;
-if(showStopperAndFiller) {
-    // Assembled filler
-    FillerBase = 101.5;
-    FillerTop = 105.5;
-    FillerHeight = 42;
-    color([1, 0, 1, 0.3])
-        translate([0, 0, innerPlugOffset + 1*mouldWallThickness])
-            stopper(FillerBase/2, (FillerTop - FillerBase)/(2*FillerHeight), FillerHeight);
-
-    // Explicit stopper
-    color([1, 1, 0, 0.3])
-    //color([1, 1, 0]);
-        translate([0, 0, 1*mouldWallThickness])
-            // stopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
-            ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
-}
-
 /*
 // Stopper cast from mould
 color([1, 0, 0, 0.3])
@@ -286,10 +268,10 @@ color([1, 0, 0, 0.3])
 */
 
 // Generate sample sections
-color([1, 1, 0])
+color([0, 1, 0])
     outlineSample(5)
         //ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
-        cast(stopperHeight, mouldWallThickness)
+        cast(stopperHeight, mouldWallThickness, 0*mouldWallThickness)
             union() {
                 stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
                 stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
@@ -307,8 +289,34 @@ color([1, 0, 1])
 color([1, 0, 0])
     stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
+
 /*
 // Outer mould
 color([0, 1, 0, 0.3])
     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
 */
+
+showStopperAndFiller = true;
+if(showStopperAndFiller) {
+    // Assembled filler
+    FillerBase = 101.5;
+    FillerTop = 105.5;
+    FillerHeight = 42;
+    color([1, 0, 1, 0.3])
+        translate([0, 0, innerPlugOffset + 0*mouldWallThickness])
+            stopper(FillerBase/2, (FillerTop - FillerBase)/(2*FillerHeight), FillerHeight);
+
+    // Explicit stopper
+    color([1, 1, 0, 0.3])
+    //color([1, 1, 0]);
+        translate([0, 0, 0*mouldWallThickness])
+            // stopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
+            ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
+    
+    // Explicit stopper
+    color([0, 0, 0, 0.3])
+    //color([1, 1, 0]);
+        translate([0, 0, 0*mouldWallThickness])
+            stopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
+            //ribbedStopper(stopperBaseD/2, tanStopperFaceAngle, stopperHeight);
+}

@@ -280,19 +280,17 @@ color([0, 1, 0])
                     stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
             }
 
-/*
 color([1, 0, 1])
     outlineSample(1)
         //stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-*/
+
 // All in one mould (prefer wall and lid separately)
 // stopperMould(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-/*
 color([1, 0, 0])
     stopperMouldLid(stopperHeight, mouldWallThickness, innerPlugOffset, innerDias/2)
         stopperMouldWalls(stopperBaseD/2, tanStopperFaceAngle, stopperHeight, mouldWallThickness);
-*/
+
 /*
 // Outer mould
 color([0, 1, 0, 0.3])
